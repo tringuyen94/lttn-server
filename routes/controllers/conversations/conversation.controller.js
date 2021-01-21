@@ -1,4 +1,3 @@
-const { query } = require("express")
 const Conversation = require("../../../models/conversation.model")
 
 const createConversation = ({
@@ -7,7 +6,7 @@ const createConversation = ({
   textChat,
   jointAt,
   isConnected,
-}) => {
+}, adminNSP) => {
   let newConversation = new Conversation({
     phoneNumber,
     socketId,
@@ -15,7 +14,8 @@ const createConversation = ({
     jointAt,
     isConnected,
   })
-  return newConversation.save()
+  newConversation.save()
+  return adminNSP.emit('client-joint', newConversation)
 }
 const updateConversation = ({ socketId, content }) => {
   Conversation.updateOne(
@@ -27,12 +27,12 @@ const updateConversation = ({ socketId, content }) => {
     }
   )
 }
-const getConversationBySocketId = (adminNSP, socketId) => {
-  let query = Conversation.findOne({ socketId: socketId })
-  query.exec(function (err, res) {
-    if (err) throw err
-    return adminNSP.emit("conversation-by-id", res.contents)
-  })
+const getConversationById = (adminNSP, conversationId) => {
+  Conversation.findById(conversationId)
+    .exec(function (err, res) {
+      if (err) throw err
+      return adminNSP.emit("conversation-by-id", res.contents)
+    })
 }
 const updateStatus = ({ socketId }) => {
   Conversation.updateOne(
@@ -44,16 +44,14 @@ const updateStatus = ({ socketId }) => {
     }
   )
 }
-const deleteConversation = (socketIdDelete) => {
-  let query = Conversation.deleteOne({ socketId: socketIdDelete })
-  query.exec(function (err, res) {
+const deleteConversation = (conversationId) => {
+  Conversation.deleteOne({ _id: conversationId }).exec(function (err, res) {
     if (err) throw err
     return res
   })
 }
 const getConversations = (adminNSP) => {
-  let query = Conversation.find({})
-  query.exec(function (err, res) {
+  Conversation.find().exec(function (err, res) {
     if (err) throw err
     return adminNSP.emit("get-conversations", res)
   })
@@ -61,7 +59,7 @@ const getConversations = (adminNSP) => {
 module.exports = {
   createConversation,
   getConversations,
-  getConversationBySocketId,
+  getConversationById,
   deleteConversation,
   updateConversation,
   updateStatus,

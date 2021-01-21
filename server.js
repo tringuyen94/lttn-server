@@ -43,14 +43,14 @@ const {
   updateConversation,
   deleteConversation,
   updateStatus,
-  getConversationBySocketId,
+  getConversationById,
 } = require("./routes/controllers/conversations/conversation.controller")
 const adminNSP = io.of("/admin")
 
 adminNSP.on("connect", (adminSocket) => {
   getConversations(adminNSP)
-  adminSocket.on("get-conversation-by-socketid", (socketId) => {
-    getConversationBySocketId(adminNSP, socketId)
+  adminSocket.on("get-conversation-by-id", (conversationId) => {
+    getConversationById(adminNSP, conversationId)
   })
   adminSocket.on("admin-message", (adminMessage) => {
     adminNSP.emit("admin-message", adminMessage)
@@ -62,22 +62,16 @@ adminNSP.on("connect", (adminSocket) => {
     io.to(adminMessage.socketId).emit("admin-message", content)
     updateConversation({ socketId: adminMessage.socketId, content })
   })
-  adminSocket.on("delete-conversation", (deleteSocketId) => {
-    deleteConversation(deleteSocketId)
+  adminSocket.on("delete-conversation", (conversationId) => {
+    deleteConversation(conversationId)
   })
 })
 io.on("connect", (socket) => {
   socket.on("join", (client) => {
     socket.join(socket.id)
     let timeJoint = new Date()
-    adminNSP.emit("client-joint", {
-      socketId: socket.id,
-      phoneNumber: client,
-      jointAt: timeJoint,
-      isConnected: true,
-    })
     let welcome = {
-      textChat: `Hi ! ${client}`,
+      textChat: `Chào mừng bạn đến với LTTNElectric`,
       sentAt: timeJoint,
       isSentByAdmin: true,
     }
@@ -88,7 +82,7 @@ io.on("connect", (socket) => {
       textChat: welcome,
       jointAt: timeJoint,
       isConnected: true,
-    })
+    }, adminNSP)
   })
   socket.on("message", (clientMessage) => {
     let clientData = {
@@ -102,7 +96,7 @@ io.on("connect", (socket) => {
   })
 
   socket.on("disconnect", () => {
-    updateStatus({ socketId: socket.id })
+    updateStatus({ socketId: socket.id }, adminNSP)
     socket.leave(socket.id)
   })
 })
