@@ -86,7 +86,8 @@ const updateProductById = (req, res, next) => {
       product.detail = detail
       product.capacity = capacity
       product.isNewOne = isNewOne
-      return product.save().then((product) => res.status(200).json(product))
+      return product.save()
+        .then((product) => res.status(200).json(product))
     })
     .catch((err) => {
       if (err.status) return res.status(err.status).json(err.message)

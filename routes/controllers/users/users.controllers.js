@@ -42,7 +42,7 @@ const loginUser = (req, res, next) => {
           status: 400,
           message: "Password is not correct"
         })
-      return jwtSign(payload, "LTTNElectric", { expiresIn: 6000 })
+      return jwtSign(payload,process.env.SECRET_KEY, { expiresIn: 6000 })
     })
     .then(token =>
       res.status(200).json({ message: "Login succesfully", jwt: token })
