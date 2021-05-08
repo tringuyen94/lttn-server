@@ -22,8 +22,8 @@ app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
 //serve static file
 app.use("/uploads", express.static("./uploads"))
-
 app.use("/api",cors(), appApi)
+app.use('/public', express.static('/public'))
 const port = process.env.PORT || 9000
 app.listen(port, () => {
   console.log(`Server is running on ${port}`)
@@ -42,7 +42,7 @@ app.listen(port, () => {
 
 // adminNSP.on("connect", (adminSocket) => {
 //   getConversations(adminNSP)
-//   adminSocket.on("get-conversation-by-id", (conversationId) => {
+//   adminSocket.on("get-conversation-by-id", (c onversationId) => {
 //     getConversationById(adminNSP, conversationId)
 //   })
 //   adminSocket.on("admin-message", (adminMessage) => {
