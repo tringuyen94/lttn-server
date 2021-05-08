@@ -23,7 +23,7 @@ app.use(express.json())
 //serve static file
 app.use("/uploads", express.static("./uploads"))
 app.use("/api",cors(), appApi)
-app.use('/public', express.static('/public'))
+app.use('/public', express.static('./public'))
 const port = process.env.PORT || 9000
 app.listen(port, () => {
   console.log(`Server is running on ${port}`)
