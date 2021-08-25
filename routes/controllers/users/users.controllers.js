@@ -53,19 +53,6 @@ const loginUser = (req, res, next) => {
     })
 }
 
-const deleteUserById = (req, res, next) => {
-  const userId = req.params
-  User.deleteOne({ _id: userId })
-    .then(result => {
-      if (result.n === 0)
-        return Promise.reject({ status: 404, message: "User not found" })
-      return res.status(200).json({ message: "Deleted Successfully" })
-    })
-    .catch(err => {
-      if (err.status) return res.status(err.status).json(err.message)
-      return res.status(500).json(err)
-    })
-}
 
 const updateUserById = (req, res, next) => {
   const { password, fullName, phone } = req.body
@@ -93,7 +80,6 @@ const getUsers = (req, res, next) => {
 
 module.exports = {
   registerUser,
-  deleteUserById,
   getUsers,
   loginUser,
   updateUserById

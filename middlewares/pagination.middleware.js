@@ -20,8 +20,8 @@ const Pagination = (page, productArr) => {
       productsCount: productArr.length,
       productByPagination: productArr.slice(9 * 9 - 9, 9 * 9),
     })
-  else
-    return Promise.resolve({
+  else 
+  return Promise.resolve({
       page,
       pageCount,
       pageIndex,

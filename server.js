@@ -11,20 +11,17 @@ mongoose
     useNewUrlParser: true,
     useUnifiedTopology: true,
     useCreateIndex:true
-  })
-  .then(() => {
-    console.log("Connected to database")
-  })  
-  .catch(err=>console.log(err))
-
+  },() => console.log('Connected to database'))
 //body parser
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
 //serve static file
 app.use("/uploads", express.static("./uploads"))
+app.get('/', (req,res,next)=>{
+  res.send("Server is running")
+})
 app.use("/api",cors(), appApi)
-app.use('/public', express.static('./public'))
-const port = process.env.PORT || 9000
+const port = 9000
 app.listen(port, () => {
   console.log(`Server is running on ${port}`)
 })

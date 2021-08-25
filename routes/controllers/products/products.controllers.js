@@ -1,23 +1,14 @@
 const { Product } = require("../../../models/product.model")
 const Pagination = require("../../../middlewares/pagination.middleware")
-const _ = require("lodash")
 
 const createProduct = (req, res, next) => {
   const { name, image, brand, detail, capacity, category, isNewOne } = req.body
-  const newProduct = new Product({
-    name,
-    image,
-    brand,
-    detail,
-    capacity,
-    isNewOne,
-    category,
-  })
+  const newProduct = new Product({ name, image, brand, detail, capacity, isNewOne, category })
   return newProduct
     .save()
     .then((product) => {
       product.populate("image")
-      res.status(201).json(product)
+      return res.status(201).json(product)
     })
     .catch((err) => res.status(500).json(err))
 }
@@ -108,36 +99,32 @@ const deleteProductById = (req, res) => {
     })
 }
 const getConvertersByFilter = (req, res, next) => {
-  let resultArr = []
-  const { brandId, capacity, isNewOne } = req.body
+  const { brandId, isNewOne } = req.body
   const { page } = req.params
-  Product.find({
-    category: "5e67d1d3616a8d11cc4eacab",
-  })
+  if (!brandId) return Product.find({ category: "5e67d1d3616a8d11cc4eacab", isNewOne })
     .populate("image")
     .populate("category")
     .populate("brand")
     .then((converters) => {
-      converters.map((converter) => {
-        if (!brandId) {
-          if (converter.isNewOne == JSON.parse(isNewOne)) {
-            resultArr.push(converter)
-          }
-        } else if (!isNewOne) {
-          if (converter.brand._id == brandId) {
-            resultArr.push(converter)
-          }
-        } else if (brandId && isNewOne) {
-          if (
-            converter.isNewOne == JSON.parse(isNewOne) &&
-            converter.brand._id == brandId
-          ) {
-            resultArr.push(converter)
-          }
-        }
-        return resultArr
-      })
-      return Pagination(page, resultArr)
+      return Pagination(page, converters)
+    })
+    .then((result) => res.status(200).json(result))
+    .catch((err) => res.status(500).json(err))
+  if (!isNewOne) return Product.find({ category: "5e67d1d3616a8d11cc4eacab", brand: brandId })
+    .populate("image")
+    .populate("category")
+    .populate("brand")
+    .then((converters) => {
+      return Pagination(page, converters)
+    })
+    .then((result) => res.status(200).json(result))
+    .catch((err) => res.status(500).json(err))
+  Product.find({ category: "5e67d1d3616a8d11cc4eacab", brand: brandId, isNewOne })
+    .populate("image")
+    .populate("category")
+    .populate("brand")
+    .then((converters) => {
+      return Pagination(page, converters)
     })
     .then((result) => res.status(200).json(result))
     .catch((err) => res.status(500).json(err))
@@ -145,16 +132,11 @@ const getConvertersByFilter = (req, res, next) => {
 const getPlcsByFilter = (req, res, next) => {
   const { brandId } = req.body
   const { page } = req.params
-  Product.find({
-    category: "5e67d1dc616a8d11cc4eacac",
-  })
+  Product.find({ category: "5e67d1dc616a8d11cc4eacac", brand: brandId })
     .populate("image")
     .populate("category")
     .populate("brand")
     .then((plcs) => {
-      let resultArr = _.filter(plcs, function (p) {
-        if (p.brand._id == brandId) return true
-      })
       return Pagination(page, resultArr)
     })
     .then((result) => res.status(200).json(result))
@@ -163,17 +145,12 @@ const getPlcsByFilter = (req, res, next) => {
 const getHmisByFilter = (req, res, next) => {
   const { brandId } = req.body
   const { page } = req.params
-  Product.find({
-    category: "",
-  })
+  Product.find({ category: "5e67d1e4616a8d11cc4eacad", brand: brandId })
     .populate("image")
     .populate("category")
     .populate("brand")
     .then((hmis) => {
-      let resultArr = _.filter(hmis, function (h) {
-        if (h.brand._id == brandId) return true
-      })
-      return Pagination(page, resultArr)
+      return Pagination(page, hmis)
     })
     .then((result) => res.status(200).json(result))
     .catch((err) => res.status(500).json(err))
@@ -194,7 +171,7 @@ const getProductsByName = (req, res, next) => {
         }
         return resultArr
       })
-      if (resultArr.length == 0)
+      if (resultArr.length === 0)
         return Promise.reject({ status: 404, message: "Not found" })
       return Pagination(page, resultArr)
     })

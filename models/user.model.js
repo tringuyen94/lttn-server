@@ -20,7 +20,7 @@ UserSchema.pre("save", function save(next) {
       user.password = hash
       return next()
     })
-    .catch(err => console.log)
+    .catch(err => console.log(err))
 })
 const User = mongoose.model("User", UserSchema, "User")
 module.exports = {

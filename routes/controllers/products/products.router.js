@@ -12,7 +12,7 @@ router.get(
   productControllers.getProductsByCategory
 )
 router.post("/byHMIs/:page", productControllers.getHmisByFilter)
-router.post("/byPLcs/:page", productControllers.getPlcsByFilter)
+router.post("/byPLCs/:page", productControllers.getPlcsByFilter)
 router.post("/byConverters/:page", productControllers.getConvertersByFilter)
 router.post("/byName/:page", productControllers.getProductsByName)
 router.delete("/:_id", productControllers.deleteProductById)
