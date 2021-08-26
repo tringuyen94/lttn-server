@@ -20,7 +20,7 @@ app.use(express.json())
 app.use("/uploads", express.static("./uploads"))
 app.use("/api", appApi)
 app.listen(9000, () => {
-  console.log(`Server is running on ${port}`)
+  console.log(`Server is running on 9000`)
 })
 //socket parttt
 // const io = require("socket.io")(http)
