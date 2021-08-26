@@ -14,13 +14,11 @@ mongoose
   },() => console.log('Connected to database'))
 //body parser
 app.use(express.urlencoded({ extended: true }))
+app.use(cors())
 app.use(express.json())
 //serve static file
 app.use("/uploads", express.static("./uploads"))
-app.get('/', (req,res,next)=>{
-  res.send("Server is running")
-})
-app.use("/api",cors(), appApi)
+app.use("/api", appApi)
 const port = 9000
 app.listen(port, () => {
   console.log(`Server is running on ${port}`)
