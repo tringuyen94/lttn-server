@@ -19,8 +19,7 @@ app.use(express.json())
 //serve static file
 app.use("/uploads", express.static("./uploads"))
 app.use("/api", appApi)
-const port = 9000
-app.listen(port, () => {
+app.listen(9000, () => {
   console.log(`Server is running on ${port}`)
 })
 //socket parttt
