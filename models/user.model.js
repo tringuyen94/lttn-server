@@ -3,13 +3,11 @@ const bcrypt = require("bcryptjs")
 const { promisify } = require("util")
 const hash = promisify(bcrypt.hash)
 const genSalt = promisify(bcrypt.genSalt)
+
+
 const UserSchema = new mongoose.Schema({
   email: { type: String, required: true },
   password: { type: String, required: true },
-  userType: { type: String, required: true, default: "client" },
-  fullName: { type: String, required: true },
-  phone: { type: String, required: true }
-  // avatar: { type: String }
 })
 UserSchema.pre("save", function save(next) {
   const user = this
@@ -23,7 +21,4 @@ UserSchema.pre("save", function save(next) {
     .catch(err => console.log(err))
 })
 const User = mongoose.model("User", UserSchema, "User")
-module.exports = {
-  UserSchema,
-  User
-}
+module.exports = User

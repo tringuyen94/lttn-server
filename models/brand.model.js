@@ -4,7 +4,4 @@ const BrandSchema = new mongoose.Schema({
   category: { type: mongoose.Schema.Types.ObjectId, ref: "Category" },
 })
 const Brand = mongoose.model("Brand", BrandSchema, "Brand")
-module.exports = {
-  BrandSchema,
-  Brand,
-}
+module.exports =  Brand

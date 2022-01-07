@@ -1,12 +1,18 @@
-const { Category } = require("../../../models/category.model")
+const Category = require("../../../models/category.model")
 
 const createCategory = (req, res, next) => {
   const { nameCategory } = req.body
-  let newCategory = new Category({ nameCategory })
-  return newCategory
-    .save()
-    .then((category) => res.status(201).json(category))
-    .catch((err) => res.status(500).json(err))
+  Category.findOne({ nameCategory })
+    .then(category => {
+      if (category) return Promise.reject({ status: 409, message: "Tên loại sản phẩm đã tồn tại" })
+      let newCategory = new Category({ nameCategory })
+      return newCategory.save()
+    })
+    .then((newCategory) => res.status(201).json({ category: newCategory, message: `Đã thêm "${newCategory.nameCategory}" thành công` }))
+    .catch((err) => {
+      if (err.status) return res.status(err.status).json({ message: err.message })
+      return res.status(500).json({ err, message: "Thêm thất bại" })
+    })
 }
 const getCategories = (req, res, next) => {
   Category.find()
@@ -14,36 +20,14 @@ const getCategories = (req, res, next) => {
     .catch((err) => res.status(500).json(err))
 }
 const updateCategoryById = (req, res, next) => {
-  const { nameCategory } = req.body
-  let categoryId = req.params
-  Category.findById(categoryId)
-    .then((category) => {
-      if (!category)
-        return Promise.reject({ status: 404, message: "Not found" })
-      category.nameCategory = nameCategory
-      return category.save().then((category) => res.status(200).json(category))
-    })
-    .catch((err) => {
-      if (err.status) return res.status(err.status).json(err.message)
-      return res.status(500).json(err)
-    })
+  Category.findByIdAndUpdate(req.params, { $set: req.body }, { new: true }, function (err, result) {
+    if (err) return res.status(500).json({ message: "Cập nhật thất bại" })
+    return res.status(200).json({ updated: result, message: "Cập nhật thành công" })
+  })
 }
-const deleteCategoryById = (req, res, next) => {
-  let categoryId = req.params
-  Category.deleteOne({ _id: categoryId })
-    .then((result) => {
-      if (result.n === 0)
-        return Promise.reject({ status: 404, message: "Category not found" })
-      return res.status(200).json({ message: "Deleted successfully" })
-    })
-    .catch((err) => {
-      if (err.status) return res.status(err.status).json(err.message)
-      return res.status(500).json(err)
-    })
-}
+
 module.exports = {
   createCategory,
   getCategories,
   updateCategoryById,
-  deleteCategoryById,
 }

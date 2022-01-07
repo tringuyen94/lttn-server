@@ -1,11 +1,13 @@
-const { User } = require("../../../models/user.model")
+const User = require("../../../models/user.model")
 const bcrypt = require("bcryptjs")
 const { promisify } = require("util")
 const comparePassword = promisify(bcrypt.compare)
 const jsonwebtoken = require("jsonwebtoken")
 const jwtSign = promisify(jsonwebtoken.sign)
-const registerUser = (req, res, next) => {
-  const { email, password, userType, fullName, phone } = req.body
+
+
+const register = (req, res, next) => {
+  const { email, password } = req.body
   User.findOne({ email })
     .then(result => {
       if (result)
@@ -13,42 +15,40 @@ const registerUser = (req, res, next) => {
           status: 400,
           message: "This email already exist"
         })
-      let newUser = new User({ email, password, userType, fullName, phone })
+      let newUser = new User({ email, password })
       return newUser.save()
     })
     .then(user => res.status(201).json(user))
     .catch(err => {
-      if (err.status) return res.status(err.status).json(err.message)
+      if (err.status) return res.status(err.status).json({ message: err.message })
       return res.status(500).json(err)
     })
 }
-const loginUser = (req, res, next) => {
+const login = (req, res, next) => {
   const { email, password } = req.body
   User.findOne({ email })
     .then(user => {
       if (!user)
-        return Promise.reject({ status: 400, message: "Email is not exist" })
+        return Promise.reject({ status: 400, message: "Tài khoản không tồn tại" })
       return Promise.all([comparePassword(password, user.password), user])
     })
     .then(result => {
       const isMatch = result[0]
       const payload = {
         email: result[1].email,
-        fullName: result[1].fullName,
-        phone: result[1].phone
       }
       if (!isMatch)
         return Promise.reject({
           status: 400,
-          message: "Password is not correct"
+          message: "Sai mật khẩu"
         })
-      return jwtSign(payload,process.env.SECRET_KEY, { expiresIn: 6000 })
+      return jwtSign(payload, process.env.SECRET_KEY, { expiresIn: 6000 })
     })
     .then(token =>
-      res.status(200).json({ message: "Login succesfully", jwt: token })
+      res.status(200).json({ message: "Thành công", jwt: token })
     )
     .catch(err => {
-      if (err.status) return res.status(err.status).json(err.message)
+      if (err.status) return res.status(err.status).json({ message: err.message })
       return res.status(500).json(err)
     })
 }
@@ -79,8 +79,8 @@ const getUsers = (req, res, next) => {
 }
 
 module.exports = {
-  registerUser,
+  register,
   getUsers,
-  loginUser,
+  login,
   updateUserById
 }

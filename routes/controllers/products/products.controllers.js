@@ -1,196 +1,87 @@
-const { Product } = require("../../../models/product.model")
-const Pagination = require("../../../middlewares/pagination.middleware")
+const Product = require("../../../models/product.model")
+
+
 
 const createProduct = (req, res, next) => {
-  const { name, image, brand, detail, capacity, category, isNewOne } = req.body
-  const newProduct = new Product({ name, image, brand, detail, capacity, isNewOne, category })
-  return newProduct
-    .save()
-    .then((product) => {
-      product.populate("image")
-      return res.status(201).json(product)
+  const { name, brand, detail, capacity, category, isNewProduct } = req.body
+  const productImages = req.files.map(file => process.env.HOST_LOCAL + '/' + file.path)
+  Product.findOne({ name })
+    .then(product => {
+      if (product) return Promise.reject({ status: 403, message: "Tên sản phẩm đã tồn tại" })
+      let newProd = new Product({ name, brand, detail, capacity, category, isNewProduct, productImages, keyword })
+      newProd.save()
     })
-    .catch((err) => res.status(500).json(err))
+    .then(_product => res.status(201).json({ message: "Thêm sản phẩm thành công", product: _product }))
+    .catch(err => {
+      if (err.status) return res.status(err.status).json({ message: err.message })
+      return res.status(500).json({ message: "Thêm sản phẩm thất bại", err })
+    })
 }
 const getProducts = (req, res, next) => {
   Product.find()
-    .populate("image")
     .populate("category")
     .populate("brand")
     .then((products) => res.status(200).json(products))
     .catch((err) => res.status(500).json(err))
 }
 const getProductById = (req, res, next) => {
-  const productId = req.params
-  Product.findById(productId)
+  Product.findById(req.params)
     .populate("category")
-    .populate("image")
     .populate("brand")
     .then((product) => {
       if (!product)
-        return Promise.reject({ status: 404, message: "Product not found" })
+        return Promise.reject({ status: 404, message: "Không tìm thấy sản phẩm" })
       return res.status(200).json(product)
     })
     .catch((err) => {
       if (err.status) return res.status(err.status).json(err.message)
-      res.status(500).json(err)
+      res.status(500).json({ message: "Lỗi" })
     })
 }
+
+
 const getProductsByCategory = (req, res, next) => {
-  const { categoryId, page } = req.params
+  const { categoryId } = req.params
   Product.find({ category: categoryId })
     .populate("image")
     .populate("category")
     .populate("brand")
-    .then((products) => {
-      return Pagination(page, products)
-    })
-    .then((result) => res.status(200).json(result))
-    .catch((err) => {
-      if (err.status) return res.status(err.status).json(err.message)
-      return res.status(500).json(err)
-    })
+    .then(products => res.status(200).json(products))
+    .catch(err => res.status(500).json(err))
 }
-const getProductsByPagination = (req, res, next) => {
-  const { page } = req.params
-  Product.find()
-    .populate("image")
-    .populate("category")
-    .populate("brand")
-    .then((products) => {
-      Pagination(page, products)
-    })
-    .then((result) => res.status(200).json(result))
-    .catch((err) => res.status(500).json(err))
+
+const updateProductById = (req, res) => {
+  Product.findByIdAndUpdate(req.params, { $set: req.body }, { new: true }, function (err, result) {
+    if (err) return res.status(500).json({ message: "Cập nhật thất bại" })
+    return res.status(200).json({ updated: result, message: "Cập nhật thành công" })
+  })
 }
-const updateProductById = (req, res, next) => {
-  const productId = req.params
-  const { name, image, capacity, brand, detail, category, isNewOne } = req.body
-  Product.findById(productId)
-    .then((product) => {
-      if (!product)
-        return Promise.reject({ status: 404, message: "Product not found" })
-      product.name = name
-      product.image = image
-      product.category = category
-      product.brand = brand
-      product.detail = detail
-      product.capacity = capacity
-      product.isNewOne = isNewOne
-      return product.save()
-        .then((product) => res.status(200).json(product))
-    })
-    .catch((err) => {
-      if (err.status) return res.status(err.status).json(err.message)
-      return res.status(500).json(err)
-    })
+const updateImageProduct = (req, res) => {
+  const productImages = req.files.map(file => process.env.HOST_LOCAL + '/' + file.path)
+  Product.findByIdAndUpdate(req.params, { $set: { productImages } }, function (err, result) {
+    if (err) return res.status(500).json({ message: "Cập nhật ảnh thất bại" })
+    return res.status(200).json({ updated: result, message: "Cập nhật ảnh thành công" })
+  })
 }
 const deleteProductById = (req, res) => {
-  const productId = req.params
-  Product.deleteOne({ _id: productId })
+  Product.deleteOne({ _id: req.params })
     .then((result) => {
-      if (result.n === 0)
-        return Promise.reject({ status: 404, message: "Not found" })
-      return res.status(200).json({ message: "Delete successfully" })
+      if (result.n === 0) return Promise.reject({ status: 404, message: "Không tìm thấy sản phẩm" })
+      return res.status(202).json({ message: "Xoá thành công" })
     })
     .catch((err) => {
       if (err.status) return res.status(err.status).json(err.message)
-      return res.status(500).json(err)
+      return res.status(500).json({ message: "Xoá thất bại" })
     })
 }
-const getConvertersByFilter = (req, res, next) => {
-  const { brandId, isNewOne } = req.body
-  const { page } = req.params
-  if (!brandId) return Product.find({ category: "5e67d1d3616a8d11cc4eacab", isNewOne })
-    .populate("image")
-    .populate("category")
-    .populate("brand")
-    .then((converters) => {
-      return Pagination(page, converters)
-    })
-    .then((result) => res.status(200).json(result))
-    .catch((err) => res.status(500).json(err))
-  if (!isNewOne) return Product.find({ category: "5e67d1d3616a8d11cc4eacab", brand: brandId })
-    .populate("image")
-    .populate("category")
-    .populate("brand")
-    .then((converters) => {
-      return Pagination(page, converters)
-    })
-    .then((result) => res.status(200).json(result))
-    .catch((err) => res.status(500).json(err))
-  Product.find({ category: "5e67d1d3616a8d11cc4eacab", brand: brandId, isNewOne })
-    .populate("image")
-    .populate("category")
-    .populate("brand")
-    .then((converters) => {
-      return Pagination(page, converters)
-    })
-    .then((result) => res.status(200).json(result))
-    .catch((err) => res.status(500).json(err))
-}
-const getPlcsByFilter = (req, res, next) => {
-  const { brandId } = req.body
-  const { page } = req.params
-  Product.find({ category: "5e67d1dc616a8d11cc4eacac", brand: brandId })
-    .populate("image")
-    .populate("category")
-    .populate("brand")
-    .then((plcs) => {
-      return Pagination(page, resultArr)
-    })
-    .then((result) => res.status(200).json(result))
-    .catch((err) => res.status(500).json(err))
-}
-const getHmisByFilter = (req, res, next) => {
-  const { brandId } = req.body
-  const { page } = req.params
-  Product.find({ category: "5e67d1e4616a8d11cc4eacad", brand: brandId })
-    .populate("image")
-    .populate("category")
-    .populate("brand")
-    .then((hmis) => {
-      return Pagination(page, hmis)
-    })
-    .then((result) => res.status(200).json(result))
-    .catch((err) => res.status(500).json(err))
-}
-const getProductsByName = (req, res, next) => {
-  let resultArr = []
-  const { name } = req.body
-  const { page } = req.params
-  Product.find()
-    .populate("image")
-    .populate("brand")
-    .populate("category")
-    .then((products) => {
-      let tempName = name.toUpperCase()
-      products.map((product) => {
-        if (product.name.indexOf(tempName) !== -1) {
-          resultArr.push(product)
-        }
-        return resultArr
-      })
-      if (resultArr.length === 0)
-        return Promise.reject({ status: 404, message: "Not found" })
-      return Pagination(page, resultArr)
-    })
-    .then((result) => res.status(200).json(result))
-    .catch((err) => {
-      if (err.status) return res.status(err.status).json(err.message)
-      return res.status(500).json(err)
-    })
-}
+
+
 module.exports = {
   createProduct,
   getProducts,
   getProductById,
   updateProductById,
-  getConvertersByFilter,
-  getPlcsByFilter,
-  getHmisByFilter,
+  updateImageProduct,
   deleteProductById,
-  getProductsByPagination,
   getProductsByCategory,
-  getProductsByName,
 }

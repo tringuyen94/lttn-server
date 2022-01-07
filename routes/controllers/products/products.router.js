@@ -1,20 +1,21 @@
 const express = require("express")
 const productControllers = require("./products.controllers")
 const router = express.Router()
+const imageUpload = require('../../../middlewares/uploadimage.middleware')
 
-router.post("/", productControllers.createProduct)
-router.get("/", productControllers.getProducts)
-router.get("/:_id", productControllers.getProductById)
-router.put("/:_id", productControllers.updateProductById)
-router.get("/byPagination/:page", productControllers.getProductsByPagination)
-router.get(
-  "/byCategory/:categoryId/:page",
-  productControllers.getProductsByCategory
-)
-router.post("/byHMIs/:page", productControllers.getHmisByFilter)
-router.post("/byPLCs/:page", productControllers.getPlcsByFilter)
-router.post("/byConverters/:page", productControllers.getConvertersByFilter)
-router.post("/byName/:page", productControllers.getProductsByName)
-router.delete("/:_id", productControllers.deleteProductById)
+
+router.post("/create-product",
+imageUpload('productImages'),
+productControllers.createProduct)
+router.get('/get-products', productControllers.getProducts)
+router.get('/get-product-by-id/:_id', productControllers.getProductById)
+router.get('/get-products-by-category/:categoryId',productControllers.getProductsByCategory)
+
+
+router.delete('/delete-product/:_id', productControllers.deleteProductById)
+router.put('/update-product/:_id', productControllers.updateProductById)
+router.put('/update-image/:_id',imageUpload('productImages'),productControllers.updateImageProduct)
+
+
 
 module.exports = router
