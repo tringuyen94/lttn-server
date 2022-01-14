@@ -44,9 +44,7 @@ const login = (req, res, next) => {
         })
       return jwtSign(payload, process.env.SECRET_KEY, { expiresIn: 6000 })
     })
-    .then(token =>
-      res.status(200).json({ message: "Thành công", jwt: token })
-    )
+    .then(token => res.status(200).json({ message: "Thành công", jwt: token }))
     .catch(err => {
       if (err.status) return res.status(err.status).json({ message: err.message })
       return res.status(500).json(err)

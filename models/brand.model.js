@@ -1,7 +1,7 @@
 const mongoose = require("mongoose")
 const BrandSchema = new mongoose.Schema({
   nameBrand: { type: String, required: true },
-  category: { type: mongoose.Schema.Types.ObjectId, ref: "Category" },
+  slugc: { type: String, required: true }
 })
 const Brand = mongoose.model("Brand", BrandSchema, "Brand")
-module.exports =  Brand
+module.exports = Brand

@@ -1,14 +1,16 @@
 const Product = require("../../../models/product.model")
+const { default: slugify } = require("slugify")
 
 
 
 const createProduct = (req, res, next) => {
   const { name, brand, detail, capacity, category, isNewProduct } = req.body
-  const productImages = req.files.map(file => process.env.HOST_LOCAL + '/' + file.path)
+  const productImages = req.files.map(file => file.path)
+  const slug = slugify(name, { lower: true })
   Product.findOne({ name })
     .then(product => {
       if (product) return Promise.reject({ status: 403, message: "Tên sản phẩm đã tồn tại" })
-      let newProd = new Product({ name, brand, detail, capacity, category, isNewProduct, productImages, keyword })
+      let newProd = new Product({ name, slug, brand, detail, capacity, category, isNewProduct, productImages })
       newProd.save()
     })
     .then(_product => res.status(201).json({ message: "Thêm sản phẩm thành công", product: _product }))
@@ -57,7 +59,7 @@ const updateProductById = (req, res) => {
   })
 }
 const updateImageProduct = (req, res) => {
-  const productImages = req.files.map(file => process.env.HOST_LOCAL + '/' + file.path)
+  const productImages = req.files.map(file => file.path)
   Product.findByIdAndUpdate(req.params, { $set: { productImages } }, function (err, result) {
     if (err) return res.status(500).json({ message: "Cập nhật ảnh thất bại" })
     return res.status(200).json({ updated: result, message: "Cập nhật ảnh thành công" })

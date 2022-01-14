@@ -1,4 +1,4 @@
-const res = require('express/lib/response')
+const { default: slugify } = require('slugify')
 const Project = require('../../../models/project.model')
 
 
@@ -15,11 +15,12 @@ const getProjectById = (req, res, next) => {
 }
 const createProject = (req, res, next) => {
    const { title, content } = req.body
-   const projectThumb = process.env.HOST_LOCAL + "/" + req.file.path
+   const slug = slugify(title, { lower: true })
+   const projectThumb = req.file.path
    Project.findOne({ title })
       .then(project => {
          if (project) return Promise.reject({ status: 408, message: "Tiêu đề đã tồn tại rồi" })
-         let _project = new Project({ title, content, projectThumb })
+         let _project = new Project({ title, slug, content, projectThumb })
          return _project.save()
       })
       .then(newProject => res.status(201).json(newProject))
@@ -35,8 +36,8 @@ const updateProjectById = (req, res, next) => {
    })
 }
 const updateProjectThumb = (req, res, next) => {
-   const projectThumb = process.env.HOST_LOCAL + "/" + req.file.path
-   Project.findByIdAndUpdate(req.params, { $set: projectThumb }, { new: true }, function (err, result) {
+   const projectThumb = req.file.path
+   Project.findByIdAndUpdate(req.params, { $set: { projectThumb } }, { new: true }, function (err, result) {
       if (err) return res.status(500).json({ err, message: "Cập nhật ảnh tiêu đề thất bại" })
       return res.status(204).json({ result, message: "Cập nhật thành công" })
    })
@@ -54,4 +55,4 @@ const deleteProjectById = (req, res, next) => [
 ]
 
 
-module.exports = { getProjects,getProjectById, createProject, updateProjectById, updateProjectThumb, deleteProjectById }
+module.exports = { getProjects, getProjectById, createProject, updateProjectById, updateProjectThumb, deleteProjectById }

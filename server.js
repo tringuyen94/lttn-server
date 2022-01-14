@@ -4,15 +4,22 @@ const mongoose = require("mongoose")
 const app = express()
 const cors = require('cors')
 const appApi = require("./routes/api")
+const swaggerUi = require('swagger-ui-express')
+const swaggerDocument = require('./swagger.json')
+
 
 const host = process.env.DATABASE
 mongoose
-.connect(host, {
+  .connect(host, {
     useNewUrlParser: true,
-    useFindAndModify:false,
+    useFindAndModify: false,
     useUnifiedTopology: true,
     useCreateIndex: true,
   }, () => console.log('Connected to database'))
+
+// swagger
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
 //body parser
 app.use(express.urlencoded({ extended: true }))
 app.use(cors())
@@ -23,6 +30,6 @@ app.use("/uploads", express.static("./uploads"))
 app.use("/api", appApi)
 
 
-app.listen(9000, () => {
-  console.log(`Server is running on 9000`)
+app.listen(process.env.PORT, () => {
+  console.log(`Server is running on ${process.env.PORT}`)
 })

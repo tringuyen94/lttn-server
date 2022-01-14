@@ -1,11 +1,14 @@
+const { default: slugify } = require("slugify")
 const Category = require("../../../models/category.model")
+const { options } = require("./categories.router")
 
 const createCategory = (req, res, next) => {
   const { nameCategory } = req.body
+  const slug = slugify(nameCategory, { lower: true })
   Category.findOne({ nameCategory })
     .then(category => {
       if (category) return Promise.reject({ status: 409, message: "Tên loại sản phẩm đã tồn tại" })
-      let newCategory = new Category({ nameCategory })
+      let newCategory = new Category({ nameCategory,slug })
       return newCategory.save()
     })
     .then((newCategory) => res.status(201).json({ category: newCategory, message: `Đã thêm "${newCategory.nameCategory}" thành công` }))

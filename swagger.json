@@ -1,0 +1,557 @@
+{
+   "swagger": "2.0",
+   "info": {
+      "version": "1.0.0",
+      "title": "LTTNElectric Project",
+      "description": "LTTNElectric Project Application API",
+      "license": {
+         "name": "MIT",
+         "url": "https://opensource.org/licenses/MIT"
+      }
+   },
+   "host": "localhost:9000",
+   "basePath": "/api",
+   "paths": {
+      "/users": {
+         "get": {
+            "tags": [
+               "User"
+            ],
+            "summary": "Get all users in system",
+            "responses": {
+               "200": {
+                  "description": "OK",
+                  "schema": {
+                     "$ref": "#/definitions/User"
+                  }
+               }
+            }
+         }
+      },
+      "/users/register": {
+         "post": {
+            "tags": [
+               "User"
+            ]
+         }
+      },
+      "/users/login": {
+         "post": {
+            "tags": [
+               "User"
+            ],
+            "summary": "Only Admin login",
+            "parameters": [
+               {
+                  "name": "credential",
+                  "in": "body",
+                  "description": "Credential of admin ",
+                  "schema": {
+                     "required": [
+                        "email",
+                        "password"
+                     ],
+                     "properties": {
+                        "email": {
+                           "type": "string"
+                        },
+                        "password": {
+                           "type": "string"
+                        }
+                     }
+                  }
+               }
+            ],
+            "responses": {
+               "200": {
+                  "description": "Login successfully",
+                  "schema": {
+                     "properties": {
+                        "message": {
+                           "type": "string"
+                        },
+                        "jwt": {
+                           "type": "string"
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      },
+      "/users/update-by-id/:id": {
+         "put": {
+            "tags": [
+               "User"
+            ]
+         }
+      },
+      "/products/get-products": {
+         "get": {
+            "tags": [
+               "Product"
+            ],
+            "summary": "Get all products in system",
+            "responses": {
+               "200": {
+                  "description": "OK",
+                  "schema": {
+                     "$ref": "#/definitions/Product"
+                  }
+               }
+            }
+         }
+      },
+      "/products/get-product-by-id/{productId}": {
+         "get": {
+            "tags": [
+               "Product"
+            ],
+            "summary": "Get product by id ",
+            "parameters": [
+               {
+                  "name": "productId",
+                  "in": "path",
+                  "description": "Product ID "
+               }
+            ],
+            "responses": {
+               "200": {
+                  "schema": {
+                     "$ref": "#/definitions/Product"
+                  }
+               }
+            }
+         }
+      },
+      "/products/get-products-by-category/{categoryId}": {
+         "get": {
+            "tags": [
+               "Product"
+            ],
+            "summary": "Get products by category id",
+            "parameters": [
+               {
+                  "name": "categoryId",
+                  "in": "path",
+                  "description": "category Id"
+               }
+            ],
+            "responses": {
+               "200": {
+                  "schema": {
+                     "$ref": "#/definitions/Product"
+                  }
+               }
+            }
+         }
+      },
+      "/products/create-product": {
+         "post": {
+            "tags": [
+               "Product"
+            ],
+            "summary": "Create a new product",
+            "parameters": [
+               {
+                  "name": "productValue",
+                  "in": "body",
+                  "properties": {
+                     "name": {
+                        "type": "string"
+                     },
+                     "isNewProduct": {
+                        "type": "boolean"
+                     },
+                     "detail": {
+                        "type": "string"
+                     },
+                     "capacity": {
+                        "type": "string"
+                     },
+                     "category": {
+                        "type": "string"
+                     },
+                     "brand": {
+                        "type": "string"
+                     }
+                  }
+               }
+            ],
+            "responses": {
+               "200": {
+                  "schema": {
+                     "$ref": "#/definitions/Product"
+                  }
+               }
+            }
+         }
+      },
+      "/products/update-product/:_id": {
+         "put": {
+            "tags": [
+               "Product"
+            ]
+         }
+      },
+      "/products/update-image/:_id": {
+         "put": {
+            "tags": [
+               "Product"
+            ]
+         }
+      },
+      "/products/delete-product/:_id": {
+         "delete": {
+            "tags": [
+               "Product"
+            ]
+         }
+      },
+      "/projects/get-projects": {
+         "get": {
+            "tags": [
+               "Project"
+            ],
+            "summary": "Get all projects",
+            "responses": {
+               "200": {
+                  "schema": {
+                     "$ref": "#/definitions/Project"
+                  }
+               }
+            }
+         }
+      },
+      "/projects/get-project-by-id/{projectId}": {
+         "get": {
+            "tags": [
+               "Project"
+            ],
+            "summary": "Get project by Id",
+            "parameters": [
+               {
+                  "name": "projectId",
+                  "in": "path",
+                  "description": "Project ID"
+               }
+            ],
+            "responses": {
+               "200": {
+                  "schema": {
+                     "$ref": "#/definitions/Project"
+                  }
+               }
+            }
+         }
+      },
+      "/projects/create-project": {
+         "post": {
+            "tags": [
+               "Project"
+            ],
+            "summary": "Create a new project",
+            "parameters": [
+               {
+                  "name": "projectValue",
+                  "in": "body",
+                  "description": "values of project",
+                  "properties": {
+                     "title": {
+                        "type": "string"
+                     },
+                     "projectThumb": {
+                        "type": "string"
+                     },
+                     "content": {
+                        "type": "string"
+                     }
+                  }
+               }
+            ]
+         }
+      },
+      "/projects/update-project-by-id/{projectId}": {
+         "put": {
+            "tags": [
+               "Project"
+            ],
+            "summary": "Update project value"
+         }
+      },
+      "/projects/update-project-thumb/{projectId}": {
+         "put": {
+            "tags": [
+               "Project"
+            ],
+            "summary": "Update thumb of project"
+         }
+      },
+      "/projects/delete-project-by-id/{projectId}": {
+         "delete": {
+            "tags": [
+               "Project"
+            ],
+            "summary": "Delete project"
+         }
+      },
+      "/brands/get-brands": {
+         "get": {
+            "tags": [
+               "Brand"
+            ],
+            "summary": "Get all brands",
+            "responses": {
+               "200": {
+                  "schema": {
+                     "$ref": "#/definitions/Brand"
+                  }
+               }
+            }
+         }
+      },
+      "/brands/create-brands": {
+         "post": {
+            "tags": [
+               "Brand"
+            ],
+            "summary": "Create a new brand",
+            "parameters": [
+               {
+                  "name": "brandData",
+                  "in": "body",
+                  "properties": {
+                     "nameBrand": {
+                        "type": "string"
+                     }
+                  }
+               }
+            ],
+            "responses": {
+               "200": {
+                  "schema": {
+                     "$ref": "#/definitions/Brand"
+                  }
+               }
+            }
+         }
+      },
+      "/brands/update-brand-by-id/{brandId}": {
+         "put": {
+            "tags": [
+               "Brand"
+            ],
+            "summary": "Update a brand",
+            "parameters": [
+               {
+                  "name": "brandId",
+                  "in": "path",
+                  "description": "Brand IDs"
+               }
+            ],
+            "responses": {
+               "200": {
+                  "schema": {
+                     "$ref": "#/definitions/Brand"
+                  }
+               }
+            }
+         }
+      },
+      "/categories/get-categories": {
+         "get": {
+            "tags": [
+               "Category"
+            ],
+            "summary": "Get all categories",
+            "responses": {
+               "200": {
+                  "schema": {
+                     "$ref": "#/definitions/Category"
+                  }
+               }
+            }
+         }
+      },
+      "/categories/create-category": {
+         "post": {
+            "tags": [
+               "Category"
+            ],
+            "summary": "Create a new Category",
+            "parameters": [
+               {
+                  "name": "categoryData",
+                  "in": "body",
+                  "properties": {
+                     "nameCategory": {
+                        "type": "string"
+                     }
+                  }
+               }
+            ],
+            "responses": {
+               "200": {
+                  "schema": {
+                     "$ref": "#/definitions/Category"
+                  }
+               }
+            }
+         }
+      },
+      "/categories/update-category-by-id/{categoryId}": {
+         "put": {
+            "tags": [
+               "Category"
+            ],
+            "summary": "Update a Category",
+            "parameters": [
+               {
+                  "name": "CategoryId",
+                  "in": "path",
+                  "description": "Category IDs"
+               }
+            ],
+            "responses": {
+               "200": {
+                  "schema": {
+                     "$ref": "#/definitions/Category"
+                  }
+               }
+            }
+         }
+      }
+   },
+   "definitions": {
+      "User": {
+         "required": [
+            "email",
+            "_id",
+            "password"
+         ],
+         "properties": {
+            "_id": {
+               "type": "string",
+               "uniqueItems": true
+            },
+            "email": {
+               "type": "string"
+            },
+            "password": {
+               "type": "string"
+            }
+         }
+      },
+      "Product": {
+         "required": [
+            "_id",
+            "name",
+            "slug",
+            "detail",
+            "isNewProduct",
+            "Category",
+            "category"
+         ],
+         "properties": {
+            "_id": {
+               "type": "string",
+               "uniqueItems": true
+            },
+            "name": {
+               "type": "string"
+            },
+            "slug": {
+               "type": "string"
+            },
+            "productImages": {
+               "type": "array"
+            },
+            "detail": {
+               "type": "string"
+            },
+            "capacity": {
+               "type": "string"
+            },
+            "isNewProdct": {
+               "type": "boolean"
+            },
+            "brand": {
+               "type": "string"
+            },
+            "category": {
+               "type": "string"
+            }
+         }
+      },
+      "Brand": {
+         "required": [
+            "_id",
+            "nameBrand",
+            "slug"
+         ],
+         "properties": {
+            "_id": {
+               "type": "string",
+               "uniqueItems": true
+            },
+            "nameBrand": {
+               "type": "string"
+            },
+            "slug": {
+               "type": "string"
+            }
+         }
+      },
+      "Category": {
+         "required": [
+            "_id",
+            "nameCategory",
+            "slug"
+         ],
+         "properties": {
+            "_id": {
+               "type": "string",
+               "uniqueItems": true
+            },
+            "nameCategory": {
+               "type": "string"
+            },
+            "slug": {
+               "type": "string"
+            }
+         }
+      },
+      "Project": {
+         "required": [
+            "_id",
+            "title",
+            "projectThumb",
+            "content"
+         ],
+         "properties": {
+            "_id": {
+               "type": "string",
+               "uniqueItems": true
+            },
+            "title": {
+               "type": "string"
+            },
+            "projectThumb": {
+               "type": "array"
+            },
+            "content": {
+               "type": "string"
+            }
+         }
+      }
+   },
+   "schemes": [
+      "http"
+   ],
+   "consumes": [
+      "application/json"
+   ],
+   "produces": [
+      "application/json"
+   ]
+}

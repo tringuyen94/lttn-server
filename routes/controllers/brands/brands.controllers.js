@@ -1,12 +1,14 @@
-const Brand  = require("../../../models/brand.model")
+const { default: slugify } = require("slugify")
+const Brand = require("../../../models/brand.model")
 
 
 const createBrand = (req, res, next) => {
   const { nameBrand } = req.body
+  const slug = slugify(nameBrand, { lower: true })
   Brand.findOne({ nameBrand })
     .then((brand) => {
       if (brand) return Promise.reject({ status: 409, message: "Tên hãng đã tồn tại" })
-      let newBrand = new Brand({ nameBrand })
+      let newBrand = new Brand({ nameBrand, slug })
       return newBrand.save()
     })
     .then((brand) => res.status(201).json({ brand, message: `Đã thêm ${brand.nameBrand} thành công` }))
