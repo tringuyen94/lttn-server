@@ -4,6 +4,7 @@ const productsRouter = require("./controllers/products/products.router")
 const userRouter = require("./controllers/users/users.router")
 const brandRouter = require("./controllers/brands/brands.router")
 const projectRouter = require('./controllers/projects/projects.router')
+const videoRouter = require('./controllers/video/video.router')
 
 const router = express.Router()
 
@@ -11,7 +12,8 @@ router.use("/categories", categoriesRouter)
 router.use("/products", productsRouter)
 router.use("/users", userRouter)
 router.use("/brands", brandRouter)
-router.use('/projects',projectRouter)
+router.use('/projects', projectRouter)
+router.use('/video', videoRouter)
 
 
 module.exports = router
