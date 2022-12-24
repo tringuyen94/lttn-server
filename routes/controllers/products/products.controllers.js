@@ -1,24 +1,31 @@
 const Product = require("../../../models/product.model")
 const { default: slugify } = require("slugify")
+const cloudinary = require('cloudinary')
 
 
+const createProduct = async (req, res, next) => {
+  let imageLinks = []
+  try {
+    for (let image of req.body.productImages) {
+      const result = await cloudinary.v2.uploader.upload(image, { folder: "lttn-electric/products" })
+      imageLinks.push({
+        public_id: result.public_id,
+        url: result.secure_url
+      })
+    }
+    req.body.productImages = imageLinks
 
-const createProduct = (req, res, next) => {
-  const { name, brand, detail, capacity, category, isNewProduct } = req.body
-  const productImages = req.files.map(file => file.path)
-  const slug = slugify(name, { lower: true })
-  Product.findOne({ name })
-    .then(product => {
-      if (product) return Promise.reject({ status: 403, message: "Tên sản phẩm đã tồn tại" })
-      let newProd = new Product({ name, slug, brand, detail, capacity, category, isNewProduct, productImages })
-      newProd.save()
-    })
-    .then(_product => res.status(201).json({ message: "Thêm sản phẩm thành công", product: _product }))
-    .catch(err => {
-      if (err.status) return res.status(err.status).json({ message: err.message })
-      return res.status(500).json({ message: "Thêm sản phẩm thất bại", err })
-    })
+  } catch (err) {
+    return res.status(500).json({ err, message: "Đã xảy ra lỗi" })
+  }
+  const slug = slugify(req.body.name, { lower: true })
+  let product = await Product.findOne({ name: req.body.name })
+  if (product) return res.status(500).json({ message: "Tên sản phẩm đã tồn tại" })
+  let newProd = await Product.create({ ...req.body, slug })
+  return res.status(201).json({ newProd, message: `Thêm ${req.body.name} thành công` })
 }
+
+
 const getProducts = (req, res, next) => {
   Product.find()
     .populate("category")
@@ -52,29 +59,52 @@ const getProductsByCategory = (req, res, next) => {
     .catch(err => res.status(500).json(err))
 }
 
-const updateProductById = (req, res) => {
-  Product.findByIdAndUpdate(req.params, { $set: req.body }, { new: true }, function (err, result) {
-    if (err) return res.status(500).json({ message: "Cập nhật thất bại" })
+const updateProductById = async (req, res) => {
+  // Remove undefined key-value on req.body
+
+  Object.keys(req.body).forEach(key => req.body[key] === 'undefined' && delete req.body[key])
+  let product = await Product.findById(req.params._id)
+  // ConstantSourceNod
+
+  try {
+    if (req.body.productImages !== 'undefined') {
+      for (let image of product.productImages) {
+        await cloudinary.v2.uploader.destroy(image.public_id)
+      }
+      let imageLinks = []
+      for (let image of req.body.productImages) {
+        const result = await cloudinary.v2.uploader.upload(image, { folder: "lttn-electric/products" })
+        imageLinks.push({
+          public_id: result.public_id,
+          url: result.secure_url
+        })
+      }
+      req.body.productImages = imageLinks
+    }
+  } catch (err) {
+    return res.status(500).json({ err, message: "Đã xảy ra lỗi" })
+  }
+  Product.findByIdAndUpdate(req.params._id, req.body, { new: true, runValidators: true }, function (err, result) {
+    if (err) return res.status(500).json({ err, message: "Cập nhật thất bại" })
     return res.status(200).json({ updated: result, message: "Cập nhật thành công" })
   })
 }
-const updateImageProduct = (req, res) => {
-  const productImages = req.files.map(file => file.path)
-  Product.findByIdAndUpdate(req.params, { $set: { productImages } }, function (err, result) {
-    if (err) return res.status(500).json({ message: "Cập nhật ảnh thất bại" })
-    return res.status(200).json({ updated: result, message: "Cập nhật ảnh thành công" })
-  })
-}
-const deleteProductById = (req, res) => {
-  Product.deleteOne({ _id: req.params })
-    .then((result) => {
-      if (result.n === 0) return Promise.reject({ status: 404, message: "Không tìm thấy sản phẩm" })
-      return res.status(202).json({ message: "Xoá thành công" })
-    })
-    .catch((err) => {
-      if (err.status) return res.status(err.status).json(err.message)
-      return res.status(500).json({ message: "Xoá thất bại" })
-    })
+
+
+const deleteProductById = async (req, res) => {
+  //Find Product
+  let product = await Product.findById(req.params._id)
+  // If not found product
+  if (!product) return res.status(404).json({ message: "Xoá thất bại" })
+  //Delete Images On Cloudinarys
+  for (let image of product.productImages) {
+    await cloudinary.v2.uploader.destroy(image.public_id)
+  }
+  //Remove Product from data
+  await product.remove()
+
+  return res.status(200).json({ message: ` Xoá ${product.name} thành công` })
+
 }
 
 
@@ -83,7 +113,6 @@ module.exports = {
   getProducts,
   getProductById,
   updateProductById,
-  updateImageProduct,
   deleteProductById,
   getProductsByCategory,
 }

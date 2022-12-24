@@ -1,6 +1,6 @@
 const { default: slugify } = require('slugify')
 const Project = require('../../../models/project.model')
-
+const cloudinary = require('cloudinary')
 
 
 const getProjects = (req, res, next) => {
@@ -13,46 +13,75 @@ const getProjectById = (req, res, next) => {
       .then(project => res.status(200).json(project))
       .catch(err => res.status(500).json({ err, message: "Đã có lỗi xảy ra" }))
 }
-const createProject = (req, res, next) => {
-   const { title, content } = req.body
-   const slug = slugify(title, { lower: true })
-   const projectThumb = req.file.path
-   Project.findOne({ title })
-      .then(project => {
-         if (project) return Promise.reject({ status: 408, message: "Tiêu đề đã tồn tại rồi" })
-         let _project = new Project({ title, slug, content, projectThumb })
-         return _project.save()
+const createProject = async (req, res, next) => {
+   let imageLinks = []
+   try {
+      const result = await cloudinary.v2.uploader.upload(req.body.projectThumb, { folder: "lttn-electric/projects" })
+      imageLinks.push({
+         public_id: result.public_id,
+         url: result.secure_url
       })
-      .then(newProject => res.status(201).json(newProject))
-      .catch(err => {
-         if (err.status) return res.status(err.status).json(err.message)
-         return res.status(500).json({ err, message: 'Đã có lỗi xảy ra' })
-      })
+      req.body.projectThumb = imageLinks
+
+   } catch (err) {
+      return res.status(500).json({ err, message: "Đã xảy ra lỗi" })
+   }
+   const slug = slugify(req.body.title, { lower: true })
+   let project = await Project.findOne({ title: req.body.title })
+   if (project) return res.status(500).json({ message: "Tên sản phẩm đã tồn tại" })
+   let newProj = await Project.create({ ...req.body, slug })
+   return res.status(201).json({ newProj, message: `Thêm ${req.body.title} thành công` })
 }
-const updateProjectById = (req, res, next) => {
-   Project.findByIdAndUpdate(req.params, { $set: req.body }, { new: true }, function (err, result) {
-      if (err) return res.status(500).json({ message: 'Cập nhật thất bại' })
-      return res.status(204).json({ updated: result, message: "Cập nhật thành công" })
+const updateProjectById = async (req, res, next) => {
+   // Remove undefined key-value on req.body
+   Object.keys(req.body).forEach(key => {
+      if (req.body[key] === 'undefined' || req.body[key] === '') {
+         delete req.body[key]
+      }
+   })
+   let project = await Project.findById(req.params._id)
+   try {
+      if (req.body.projectThumb) {
+         for (let image of project.projectThumb) {
+            await cloudinary.v2.uploader.destroy(image.public_id)
+         }
+         let imageLinks = []
+         const result = await cloudinary.v2.uploader.upload(req.body.projectThumb, { folder: "lttn-electric/projects" })
+         imageLinks.push({
+            public_id: result.public_id,
+            url: result.secure_url
+         })
+         req.body.projectThumb = imageLinks
+      }
+   } catch (err) {
+      return res.status(500).json({ err, message: "Đã xảy ra lỗi" })
+   }
+   Project.findByIdAndUpdate(req.params._id, req.body, { new: true, runValidators: true }, function (err, result) {
+      console.log(err)
+
+      if (err) return res.status(500).json({ err, message: "Cập nhật thất bại" })
+      return res.status(200).json({ updated: result, message: "Cập nhật thành công" })
    })
 }
-const updateProjectThumb = (req, res, next) => {
-   const projectThumb = req.file.path
-   Project.findByIdAndUpdate(req.params, { $set: { projectThumb } }, { new: true }, function (err, result) {
-      if (err) return res.status(500).json({ err, message: "Cập nhật ảnh tiêu đề thất bại" })
-      return res.status(204).json({ result, message: "Cập nhật thành công" })
-   })
+
+const deleteProjectById = async (req, res, next) => {
+   //Find project
+   let project = await Project.findById(req.params._id)
+   // If not found project
+   if (!project) return res.status(404).json({ message: "Xoá thất bại" })
+   //Delete Images On Cloudinarys
+   for (let image of project.projectThumb) {
+      await cloudinary.v2.uploader.destroy(image.public_id)
+   }
+   //Remove project from data
+   await project.remove()
+
+   return res.status(200).json({ message: ` Xoá ${project.title} thành công` })
 }
-const deleteProjectById = (req, res, next) => [
-   Project.deleteOne({ _id: req.params })
-      .then(result => {
-         if (result.n === 0) return Promise.reject({ status: 404, message: "Không tìm thấy dự án" })
-         return res.status(202).json({ result, message: "Đã xoá thành công" })
-      })
-      .catch(err => {
-         if (err.status) return res.status(err.status).json(err.message)
-         return res.status(500).json({ err, message: "Đã có lỗi xảy ra" })
-      })
-]
 
 
-module.exports = { getProjects, getProjectById, createProject, updateProjectById, updateProjectThumb, deleteProjectById }
+module.exports = {
+   getProjects, getProjectById,
+   createProject, updateProjectById,
+   deleteProjectById
+}

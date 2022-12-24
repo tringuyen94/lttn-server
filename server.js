@@ -6,7 +6,8 @@ const cors = require('cors')
 const appApi = require("./routes/api")
 const swaggerUi = require('swagger-ui-express')
 const swaggerDocument = require('./swagger.json')
-
+const fileUpload = require('express-fileupload')
+const cloudinary = require('cloudinary')
 
 const host = process.env.DATABASE
 mongoose
@@ -17,17 +18,23 @@ mongoose
     useCreateIndex: true,
   }, () => console.log('Connected to database'))
 
-// swagger
 
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
 //body parser
-app.use(express.urlencoded({ extended: true }))
-app.use(cors())
 app.use(express.json())
-//serve static file
-app.use("/uploads", express.static("./uploads"))
+app.use(express.urlencoded({ extended: true }))
+app.use(fileUpload())
+app.use(cors())
 
+// swagger
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
+// API
 app.use("/api", appApi)
+// Cloudinary Config
+cloudinary.config({
+  cloud_name: process.env.CLOUD_NAME,
+  api_key: process.env.CLOUD_API_KEY,
+  api_secret: process.env.CLOUD_API_SECRET
+});
 
 
 app.listen(process.env.PORT, () => {
