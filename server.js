@@ -7,16 +7,14 @@ const appApi = require("./routes/api")
 const swaggerUi = require('swagger-ui-express')
 const swaggerDocument = require('./swagger.json')
 const fileUpload = require('express-fileupload')
-const cloudinary = require('cloudinary')
+const cloudinary = require('cloudinary').v2
 
 const host = process.env.DATABASE
+
 mongoose
-  .connect(host, {
-    useNewUrlParser: true,
-    useFindAndModify: false,
-    useUnifiedTopology: true,
-    useCreateIndex: true,
-  }, () => console.log('Connected to database'))
+  .connect(host)
+  .then(() => console.log('Connected to DB'))
+  .catch(err => console.log(err))
 
 
 //body parser
@@ -33,7 +31,8 @@ app.use("/api", appApi)
 cloudinary.config({
   cloud_name: process.env.CLOUD_NAME,
   api_key: process.env.CLOUD_API_KEY,
-  api_secret: process.env.CLOUD_API_SECRET
+  api_secret: process.env.CLOUD_SECRET_KEY,
+  secure: true
 });
 
 

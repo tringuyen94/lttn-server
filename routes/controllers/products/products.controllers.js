@@ -7,7 +7,9 @@ const createProduct = async (req, res, next) => {
   let imageLinks = []
   try {
     for (let image of req.body.productImages) {
-      const result = await cloudinary.v2.uploader.upload(image, { folder: "lttn-electric/products" })
+      // const result = await cloudinary.v2.uploader.upload(image, { folder: "lttn-electric/products" })
+      const result = await cloudinary.v2.uploader.upload(image,{folder:'lttn-electric/products'})
+      console.log(result)
       imageLinks.push({
         public_id: result.public_id,
         url: result.secure_url
@@ -33,6 +35,8 @@ const getProducts = (req, res, next) => {
     .then((products) => res.status(200).json(products))
     .catch((err) => res.status(500).json(err))
 }
+
+
 const getProductById = (req, res, next) => {
   Product.findById(req.params)
     .populate("category")
@@ -61,7 +65,6 @@ const getProductsByCategory = (req, res, next) => {
 
 const updateProductById = async (req, res) => {
   // Remove undefined key-value on req.body
-
   Object.keys(req.body).forEach(key => req.body[key] === 'undefined' && delete req.body[key])
   let product = await Product.findById(req.params._id)
   // ConstantSourceNod
@@ -101,7 +104,7 @@ const deleteProductById = async (req, res) => {
     await cloudinary.v2.uploader.destroy(image.public_id)
   }
   //Remove Product from data
-  await product.remove()
+  await Product.deleteOne({_id:product._id})
 
   return res.status(200).json({ message: ` Xoá ${product.name} thành công` })
 
