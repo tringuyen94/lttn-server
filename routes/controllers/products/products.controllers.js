@@ -8,8 +8,7 @@ const createProduct = async (req, res, next) => {
   try {
     for (let image of req.body.productImages) {
       // const result = await cloudinary.v2.uploader.upload(image, { folder: "lttn-electric/products" })
-      const result = await cloudinary.v2.uploader.upload(image,{folder:'lttn-electric/products'})
-      console.log(result)
+      const result = await cloudinary.v2.uploader.upload(image, { folder: 'lttn-electric/products' })
       imageLinks.push({
         public_id: result.public_id,
         url: result.secure_url
@@ -63,33 +62,35 @@ const getProductsByCategory = (req, res, next) => {
 const updateProductById = async (req, res) => {
   // Remove undefined key-value on req.body
   Object.keys(req.body).forEach(key => req.body[key] === 'undefined' && delete req.body[key])
-  let product = await Product.findById(req.params._id)
-  // ConstantSourceNod
+
+  const product =await Product.findById(req.params._id)
+
 
   try {
-    if (req.body.productImages !== 'undefined') {
-      for (let image of product.productImages) {
-        await cloudinary.v2.uploader.destroy(image.public_id)
+      if (req.body.productImages) {
+        for (let image of product.productImages) {
+          await cloudinary.v2.uploader.destroy(image.public_id)
+        }
+        let imageLinks = []
+        for (let image of req.body.productImages) {
+          const result = await cloudinary.v2.uploader.upload(image, { folder: "lttn-electric/products" })
+          imageLinks.push({
+            public_id: result.public_id,
+            url: result.secure_url
+          })
+        }
+        req.body.productImages = imageLinks
       }
-      let imageLinks = []
-      for (let image of req.body.productImages) {
-        const result = await cloudinary.v2.uploader.upload(image, { folder: "lttn-electric/products" })
-        imageLinks.push({
-          public_id: result.public_id,
-          url: result.secure_url
-        })
-      }
-      req.body.productImages = imageLinks
-    }
+    await Product.findByIdAndUpdate(req.params._id, req.body)
+    return res.status(200).json({ message: 'Cập nhật thành công' })
   } catch (err) {
     return res.status(500).json({ err, message: "Đã xảy ra lỗi" })
   }
-  Product.findByIdAndUpdate(req.params._id, req.body, { new: true, runValidators: true }, function (err, result) {
-    if (err) return res.status(500).json({ err, message: "Cập nhật thất bại" })
-    return res.status(200).json({ updated: result, message: "Cập nhật thành công" })
-  })
-}
 
+
+
+
+}
 
 const deleteProductById = async (req, res) => {
   //Find Product
@@ -101,7 +102,7 @@ const deleteProductById = async (req, res) => {
     await cloudinary.v2.uploader.destroy(image.public_id)
   }
   //Remove Product from data
-  await Product.deleteOne({_id:product._id})
+  await Product.deleteOne({ _id: product._id })
 
   return res.status(200).json({ message: ` Xoá ${product.name} thành công` })
 
