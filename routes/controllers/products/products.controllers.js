@@ -56,9 +56,6 @@ const getProductById = (req, res, next) => {
 const getProductsByCategory = (req, res, next) => {
   const { categoryId } = req.params
   Product.find({ category: categoryId })
-    .populate("image")
-    .populate("category")
-    .populate("brand")
     .then(products => res.status(200).json(products))
     .catch(err => res.status(500).json(err))
 }
