@@ -6,8 +6,12 @@
     "start": "node server.js",
     "dev": "node --watch server.js"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "node",
+    "express",
+    "mongodb"
+  ],
+  "author": "tringuyen194.dev",
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^2.4.3",
