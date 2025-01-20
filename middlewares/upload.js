@@ -1,7 +1,7 @@
 const multer = require('multer');
 const { BadResquestError } = require('../response/error.response');
 
-const checkFileTyped = (req, file, cb) => {
+const fileFilter = (req, file, cb) => {
   if (file.mimetype.split('/')[0] === 'image') {
     return cb(null, true);
   } else {
@@ -10,5 +10,5 @@ const checkFileTyped = (req, file, cb) => {
 };
 module.exports = multer({
   storage: multer.memoryStorage(),
-  fileFilter: checkFileTyped,
+  fileFilter,
 });

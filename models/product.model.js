@@ -8,6 +8,7 @@ const ProductSchema = new mongoose.Schema(
     product_name: { type: String, required: true, unique: true },
     product_slug: { type: String },
     product_images: [String],
+    product_cover_image: { type: String },
     product_description: { type: String },
     product_capacity: { type: Number },
     product_isnew: { type: Boolean },
@@ -24,7 +25,7 @@ const ProductSchema = new mongoose.Schema(
   },
   { timestamps: true, collection: COLLECTION_NAME }
 );
-ProductSchema.index({ slug: 1 });
+ProductSchema.index({ product_slug: 1 });
 ProductSchema.index({ createdAt: 1 });
 ProductSchema.index({ capacity: 1 });
 ProductSchema.pre('save', function (next) {

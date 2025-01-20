@@ -11,6 +11,12 @@ class FilterFeature {
     }
     return this;
   }
+  filterIsNew() {
+    if (this.queryString.isNew) {
+      this.query.find({ product_isnew: this.queryString.isNew });
+    }
+    return this;
+  }
   filterByBrand() {
     if (this.queryString.brand) {
       this.query.find({ brand: this.queryString.brand });
@@ -25,19 +31,13 @@ class FilterFeature {
   }
   sortByCapacity() {
     if (
-      this.queryString.sortByCapacity &&
+      this.queryString.capacity &&
       this.queryString.category === '5e67d1d3616a8d11cc4eacab'
     ) {
-      switch (this.queryString.sortByCapacity) {
-        case 'asc':
-          this.query.sort({ product_capacity: 1 });
-          break;
-        case 'desc':
-          this.query.sort({ product_capacity: -1 });
-          break;
-        default:
-          break;
-      }
+      let product_capacity = {};
+      product_capacity.$gte = parseFloat(this.queryString.capacity.gte) || 0;
+      product_capacity.$lte = parseFloat(this.queryString.capacity.lte) || 100;
+      this.query.find({ product_capacity });
     } else {
       this.query.sort('--createdAt');
     }

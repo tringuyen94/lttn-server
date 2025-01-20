@@ -48,7 +48,6 @@ class Factory {
   getOne = asyncHandler(async (req, res, next) => {
     const doc = await this.model.findById(req.params);
     if (!doc) throw new NotFoundError('Không tìm thấy', 404);
-
     new SuccessResponse({
       res,
       metadata: doc,
