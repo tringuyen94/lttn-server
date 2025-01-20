@@ -8,7 +8,8 @@ const COLLECTION_NAME = 'Categories';
 const CategorySchema = new mongoose.Schema(
   {
     category_name: { type: String, required: true, unique: true },
-    category_slug: { type: String },
+    category_image: String,
+    category_slug: String,
   },
   { collection: COLLECTION_NAME }
 );

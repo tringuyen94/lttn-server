@@ -13,6 +13,7 @@ router.post(
 );
 
 router.get('/:_id', projectController.getProjectById);
+router.get('/slug/:slug', projectController.getProjectBySlug);
 router.put('/:_id', projectController.updateProject);
 router.delete('/:_id', projectController.deleteProject);
 

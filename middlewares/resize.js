@@ -3,34 +3,51 @@ const slugName = require('../utils/slug-name');
 
 const processResize = async (fileBuffer, size, path) => {
   await sharp(fileBuffer)
-    .resize(size.width, size.height)
+    .resize(size)
     .toFormat('jpeg')
     .jpeg({ quality: 90 })
-    .toFile(path);
+    .toFile(`./public/${path}`);
 };
 
 module.exports = (type) => {
   return (req, res, next) => {
-    if (!req.file && !req.files) next();
     switch (type) {
       case 'products':
-        req.body.product_images = [];
-        req.files.map((f, index) => {
-          f.filename = `product-${slugName(req.body.product_name)}-${
-            index + 1
-          }.jpeg`;
+        if (req.files.product_cover_image) {
+          req.body.product_cover_image = `images/products/product-cover-${Date.now()}.jpeg`;
           processResize(
-            f.buffer,
-            { width: 450, height: 600 },
-            `./public/images/products-test/${f.filename}`
+            req.files.product_cover_image[0].buffer,
+            225,
+            req.body.product_cover_image
           );
-          req.body.product_images.push(f.filename);
-        });
+        }
+        if (req.files.produc_images) {
+          req.body.product_images = [];
+          req.files.product_images.map((img, index) => {
+            let filename = `images/products/product-${Date.now()}-${
+              index + 1
+            }.jpeg`;
+            processResize(img.buffer, 600, filename);
+            req.body.product_images.push(filename);
+          });
+        }
         break;
-      case 'projects':
-        req.body.project_thumbnail = `project-${slugName(
-          req.body.project_title
-        )}.jpeg`;
+
+      // case 'projects':
+      //   req.body.project_thumbnail = `project-${slugName(
+      //     req.body.project_title
+      //   )}.jpeg`;
+      //   break;
+      case 'category_image':
+        if (req.file) {
+          req.body.category_image = `images/categories/category-${Date.now()}.jpeg`;
+
+          processResize(
+            req.file.buffer,
+            { width: 200, height: 160 },
+            req.body.category_image
+          );
+        }
         break;
       default:
         break;
