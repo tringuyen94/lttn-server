@@ -21,7 +21,7 @@ module.exports = (type) => {
             req.body.product_cover_image
           );
         }
-        if (req.files.produc_images) {
+        if (req.files.product_images) {
           req.body.product_images = [];
           req.files.product_images.map((img, index) => {
             let filename = `images/products/product-${Date.now()}-${
@@ -31,13 +31,17 @@ module.exports = (type) => {
             req.body.product_images.push(filename);
           });
         }
+
         break;
 
-      // case 'projects':
-      //   req.body.project_thumbnail = `project-${slugName(
-      //     req.body.project_title
-      //   )}.jpeg`;
-      //   break;
+      case 'projects':
+        req.body.project_thumbnail = `images/projects/project-${Date.now()}`;
+        processResize(
+          req.file.buffer,
+          { width: 200, height: 160 },
+          req.body.project_thumbnail
+        );
+        break;
       case 'category_image':
         if (req.file) {
           req.body.category_image = `images/categories/category-${Date.now()}.jpeg`;

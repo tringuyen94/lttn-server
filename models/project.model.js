@@ -19,6 +19,7 @@ ProjectSchema.pre('save', function (next) {
   }
   next();
 });
+
 ProjectSchema.pre('findOneAndUpdate', async function (next) {
   const update = this.getUpdate();
   if (update.project_title) {
