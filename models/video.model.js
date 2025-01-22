@@ -1,9 +1,12 @@
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
 
-const VideoSchema = new mongoose.Schema({
-   videoUrl: { type: String, required: true }
-})
+const DOCUMENT_NAME = 'Video';
 
-const Video = mongoose.model('Video', VideoSchema, 'Video')
+const VideoSchema = new mongoose.Schema(
+  {
+    video_url: { type: String, required: true },
+  },
+  { collection: DOCUMENT_NAME }
+);
 
-module.exports = Video
+module.exports = mongoose.model(DOCUMENT_NAME, VideoSchema);

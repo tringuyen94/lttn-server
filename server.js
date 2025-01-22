@@ -1,41 +1,27 @@
-require('dotenv').config()
-const express = require("express")
-const mongoose = require("mongoose")
-const app = express()
-const cors = require('cors')
-const appApi = require("./routes/api")
-const swaggerUi = require('swagger-ui-express')
-const swaggerDocument = require('./swagger.json')
-const fileUpload = require('express-fileupload')
-const cloudinary = require('cloudinary').v2
+const app = require('./app');
+const {
+  server: { port },
+} = require('./config');
 
-const host = process.env.DATABASE
-
-mongoose
-  .connect(host)
-  .then(() => console.log('Connected to DB'))
-  .catch(err => console.log(err))
-
-
-//body parser
-app.use(express.json())
-app.use(express.urlencoded({ extended: true }))
-app.use(fileUpload())
-app.use(cors())
-
-// swagger
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
-// API
-app.use("/api", appApi)
-// Cloudinary Config
-cloudinary.config({
-  cloud_name: process.env.CLOUD_NAME,
-  api_key: process.env.CLOUD_API_KEY,
-  api_secret: process.env.CLOUD_SECRET_KEY,
-  secure: true
+const webService = app.listen(port, () => {
+  console.log(`Server is running on ${port}`);
 });
 
+process.on('uncaughtException', (error) => {
+  console.error('Uncaught Exception:', error);
+  // Perform any necessary cleanup
+  webService.close(() => {
+    console.log('Shutting down server due to uncaught exception...');
+    process.exit(1); // Exit the app
+  });
+});
 
-app.listen(process.env.PORT, () => {
-  console.log(`Server is running on ${process.env.PORT}`)
-})
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+  // Perform any necessary cleanup, like closing database connections, etc.
+  // Shutdown the server
+  webService.close(() => {
+    console.log('Shutting down server...');
+    process.exit(1); // Exit with failure
+  });
+});
