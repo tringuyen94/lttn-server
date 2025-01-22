@@ -44,6 +44,7 @@ const signout = asyncHandler(async (req, res, next) => {
   res.clearCookie('jwt');
   return res.status(200).json({ message: 'Đã đăng xuất' });
 });
+
 const checkLogged = asyncHandler(async (req, res, next) => {
   return res.status(200).json({
     status: 'success',

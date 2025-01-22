@@ -10,10 +10,13 @@ const {
 } = require('../middlewares/auth.middlewares');
 
 router.get('/', productControllers.getAllProducts);
+router.get('/:_id', productControllers.getProductById);
+router.get('/slug/:slug', productControllers.getProductBySlug);
+
 router.post(
   '/',
-  // authentication,
-  // authorization('admin', 'moderator'),
+  authentication,
+  authorization('admin', 'moderator'),
   upload.fields([
     {
       name: 'product_cover_image',
@@ -25,12 +28,23 @@ router.post(
   productControllers.createProduct
 );
 
-router.get('/:_id', productControllers.getProductById);
-router.get('/slug/:slug', productControllers.getProductBySlug);
-router.delete('/:_id', productControllers.deleteProduct);
-router.patch('/:_id', productControllers.updateProduct);
+router.delete(
+  '/:_id',
+  authentication,
+  authorization('admin', 'moderator'),
+  productControllers.deleteProduct
+);
+
+router.patch(
+  '/:_id',
+  authentication,
+  authorization('admin', 'moderator'),
+  productControllers.updateProduct
+);
 router.patch(
   '/update-image/:_id',
+  authentication,
+  authorization('admin', 'moderator'),
   upload.fields([
     {
       name: 'product_cover_image',
