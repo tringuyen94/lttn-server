@@ -41,6 +41,7 @@ router.patch(
   authorization('admin', 'moderator'),
   productControllers.updateProduct
 );
+
 router.patch(
   '/update-image/:_id',
   authentication,
