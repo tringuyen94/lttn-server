@@ -27,7 +27,7 @@ const signin = asyncHandler(async (req, res, next) => {
 
   //1 Check username
   const user = await User.findOne({ username }).select('password');
-  if (!user) throw new BadResquestError('Tài khoản không tồn tại');
+  if (!user) throw new AuthFailureError('Tài khoản không tồn tại');
   //2. Check password
 
   const isMatch = await bcrypt.compare(password, user.password);
@@ -45,14 +45,6 @@ const signout = asyncHandler(async (req, res, next) => {
   return res.status(200).json({ message: 'Đã đăng xuất' });
 });
 
-const checkLogged = asyncHandler(async (req, res, next) => {
-  return res.status(200).json({
-    status: 'success',
-    user: req.user,
-    message: 'session validated',
-  });
-});
-
 const changePassword = asyncHandler(async (req, res, next) => {
   const { newPassword, confirmedPassword } = req.body;
   if (newPassword !== confirmedPassword)
@@ -63,6 +55,12 @@ const changePassword = asyncHandler(async (req, res, next) => {
   return res.status(200).json({
     status: 'success',
     message: 'Cập nhật mật khẩu thành công',
+  });
+});
+const checkLogged = asyncHandler(async (req, res, next) => {
+  return res.status(200).json({
+    status: 'success',
+    user: req.user,
   });
 });
 
