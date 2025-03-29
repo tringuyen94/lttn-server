@@ -22,7 +22,7 @@ app.use(
   cors({
     origin: 'http://localhost:5173', // Your frontend's URL
     credentials: true,
-    methods: ['GET', 'POST', 'DELETE', 'PATCH'],
+    methods: ['GET', 'PUT', 'POST', 'DELETE', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   })
 );
@@ -30,9 +30,9 @@ app.use(
   helmet.contentSecurityPolicy({
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", 'cdnjs.cloudflare.com'], // Allow external script sources
-      imgSrc: ["'self'", 'your-image-domain.com'], // Allow image domain
-      styleSrc: ["'self'", "'unsafe-inline'"], // Allow inline styles
+      // scriptSrc: ["'self'", 'cdnjs.cloudflare.com'], // Allow external script sources
+      // imgSrc: ["'self'", 'your-image-domain.com'], // Allow image domain
+      // styleSrc: ["'self'", "'unsafe-inline'"], // Allow inline styles
     },
   })
 );

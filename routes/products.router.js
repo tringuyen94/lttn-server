@@ -22,7 +22,7 @@ router.post(
       name: 'product_cover_image',
       maxCount: 1,
     },
-    { name: 'product_images', maxCount: IMAGE_LIMIT_UPLOAD },
+    { name: 'product_images', maxCount: IMAGE_LIMIT_UPLOAD.product },
   ]),
   resize('products'),
   productControllers.createProduct
