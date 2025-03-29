@@ -8,17 +8,14 @@ const generateJWT = (payload) => {
   return token;
 };
 const verifyJWT = (token) => {
-  let payload;
-  jwt.verify(token, process.env.JWT_SECRET, function (err, decoded) {
-    // err
-    if (err)
-      throw new AuthFailureError(
-        'Hết thời gian đăng nhập,vui lòng đăng nhập lại'
-      );
-    // decoded undefined
-    payload = decoded;
-  });
-  return payload;
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    return decoded;
+  } catch (err) {
+    throw new AuthFailureError(
+      'Hết thời gian đăng nhập, vui lòng đăng nhập lại'
+    );
+  }
 };
 module.exports = {
   generateJWT,

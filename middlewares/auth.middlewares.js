@@ -8,9 +8,9 @@ const { verifyJWT } = require('../utils/auth-utils');
 
 const authentication = asyncHandler(async (req, res, next) => {
   const token = req.cookies.jwt;
-
   if (!token) throw new AuthFailureError('Vui lòng đăng nhập');
   const { payload } = verifyJWT(token);
+
   const user = await User.findById(payload);
   if (!user) throw new NotFoundError('Invalid User');
   req.user = user;
@@ -25,6 +25,7 @@ const authorization = (...roles) => {
     next();
   };
 };
+
 module.exports = {
   authentication,
   authorization,
