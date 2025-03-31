@@ -12,7 +12,6 @@ const {
 router.get('/', productControllers.getAllProducts);
 router.get('/:_id', productControllers.getProductById);
 router.get('/slug/:slug', productControllers.getProductBySlug);
-
 router.post(
   '/',
   authentication,
