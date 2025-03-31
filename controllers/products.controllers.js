@@ -19,11 +19,17 @@ const getAllProducts = asyncHandler(async (req, res, next) => {
   });
 });
 const getProductBySlug = asyncHandler(async (req, res, next) => {
-  const doc = await Product.findOne({ product_slug: req.params.slug });
-  if (!doc) throw new NotFoundError('Không tìm thấy', 404);
+  const product = await Product.findOne({ product_slug: req.params.slug });
+  const similarProducts = await Product.find({
+    product_slug: { $ne: product.product_slug },
+    category: product.category,
+  })
+    .limit(4)
+    .select('-__v -product_description');
+  if (!product) throw new NotFoundError('Không tìm thấy', 404);
   return res.status(200).json({
     message: 'Success',
-    metadata: doc,
+    metadata: { product, similarProducts },
   });
 });
 

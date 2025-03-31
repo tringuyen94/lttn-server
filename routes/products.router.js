@@ -12,7 +12,6 @@ const {
 router.get('/', productControllers.getAllProducts);
 router.get('/:_id', productControllers.getProductById);
 router.get('/slug/:slug', productControllers.getProductBySlug);
-
 router.post(
   '/',
   authentication,
@@ -41,6 +40,7 @@ router.patch(
   authorization('admin', 'moderator'),
   productControllers.updateProduct
 );
+
 router.patch(
   '/update-image/:_id',
   authentication,
