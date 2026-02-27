@@ -8,7 +8,7 @@ const { verifyJWT } = require('../utils/auth-utils');
 
 const authentication = asyncHandler(async (req, res, next) => {
   const token = req.cookies.jwt;
-  if (!token) throw new AuthFailureError('Vui lòng đăng nhập');
+  if (!token) throw new AuthFailureError('Please sign in');
   const { payload } = verifyJWT(token);
 
   const user = await User.findById(payload);
@@ -20,7 +20,7 @@ const authentication = asyncHandler(async (req, res, next) => {
 const authorization = (...roles) => {
   return (req, res, next) => {
     if (!roles.includes(req.user.user_role)) {
-      throw new AuthFailureError('Bạn không thể thực hiện thao tác này', 403);
+      throw new AuthFailureError('You are not authorized to perform this action', 403);
     }
     next();
   };

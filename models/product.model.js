@@ -27,26 +27,25 @@ const ProductSchema = new mongoose.Schema(
 );
 ProductSchema.index({ product_slug: 1 });
 ProductSchema.index({ createdAt: 1 });
-ProductSchema.index({ capacity: 1 });
-ProductSchema.pre('save', function (next) {
+ProductSchema.index({ product_capacity: 1 });
+ProductSchema.index({ brand: 1 });
+ProductSchema.index({ category: 1 });
+ProductSchema.pre('save', function () {
   if (this.isModified('product_name')) {
     this.product_slug = slugName(this.product_name);
   }
-  next();
 });
-ProductSchema.pre(/^find/, function (next) {
+ProductSchema.pre(/^find/, function () {
   this.populate({ path: 'brand', select: 'brand_name brand_slug' }).populate({
     path: 'category',
     select: 'category_name category_slug',
   });
-  next();
 });
-ProductSchema.pre('findOneAndUpdate', async function (next) {
+ProductSchema.pre('findOneAndUpdate', async function () {
   const update = this.getUpdate();
   if (update.product_name) {
     update.product_slug = slugName(update.product_name);
   }
-  next();
 });
 
 module.exports = mongoose.model(DOCUMENT_NAME, ProductSchema);

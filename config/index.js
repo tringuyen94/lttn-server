@@ -20,4 +20,11 @@ const config = {
     },
   },
 };
-module.exports = config[process.env.NODE_ENV];
+const env = process.env.NODE_ENV || 'dev';
+const currentConfig = config[env];
+
+if (!currentConfig) {
+  throw new Error(`Invalid NODE_ENV value: ${env}`);
+}
+
+module.exports = currentConfig;

@@ -30,17 +30,23 @@ class FilterFeature {
     return this;
   }
   sortByCapacity() {
-    if (
-      this.queryString.capacity &&
-      this.queryString.category === '5e67d1d3616a8d11cc4eacab'
-    ) {
-      let product_capacity = {};
+    if (this.queryString.capacity) {
+      const product_capacity = {};
       product_capacity.$gte = parseFloat(this.queryString.capacity.gte) || 0;
       product_capacity.$lte = parseFloat(this.queryString.capacity.lte) || 100;
       this.query.find({ product_capacity });
     } else {
-      this.query.sort('--createdAt');
+      this.query.sort('-createdAt');
     }
+    return this;
+  }
+  paginate(defaultLimit = 20) {
+    const page = Math.max(parseInt(this.queryString.page) || 1, 1);
+    const limit = Math.min(Math.max(parseInt(this.queryString.limit) || defaultLimit, 1), 100);
+    const skip = (page - 1) * limit;
+    this.page = page;
+    this.limit = limit;
+    this.query = this.query.skip(skip).limit(limit);
     return this;
   }
 }

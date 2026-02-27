@@ -1,5 +1,5 @@
 const express = require('express');
-const userControllers = require('../controllers/users.controllers');
+const userControllers = require('../controllers/users.controller');
 const {
   authentication,
   authorization,

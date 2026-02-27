@@ -30,15 +30,13 @@ const UserSchema = new mongoose.Schema(
 );
 
 // PRE HOOK HASH PASSWORD BEFORE SAVE
-UserSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) return next();
+UserSchema.pre('save', async function () {
+  if (!this.isModified('password')) return;
   this.password = await bcrypt.hash(this.password, 10);
-  next();
 });
 
-UserSchema.pre(/^find/, function (next) {
-  this.find({ active: { $ne: false } });
-  next();
+UserSchema.pre(/^find/, function () {
+  this.find({ user_active: { $ne: false } });
 });
 
 const User = mongoose.model(DOCUMENT_NAME, UserSchema);

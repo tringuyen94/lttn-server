@@ -4,7 +4,7 @@ const {
   StatusCodes,
 } = require('./status-reasonphrase/httpStatusCode');
 
-class ErrorReponse extends Error {
+class ErrorResponse extends Error {
   constructor(message, statusCode) {
     super(message);
     this.statusCode = statusCode;
@@ -12,17 +12,7 @@ class ErrorReponse extends Error {
   }
 }
 
-// class ErrorResponse extends Error {
-//   constructor(mesasge, statusCode) {
-//     super(mesasge);
-//     this.statusCode = statusCode;
-//     this.status = `${String(statusCode).startsWith(4) ? 'fail' : 'error'}`;
-//     this.isOperational = true;
-//     Error.captureStackTrace(this, this.constructor);
-//   }
-// }
-
-class BadResquestError extends ErrorReponse {
+class BadRequestError extends ErrorResponse {
   constructor(
     message = ReasonPhrases.BAD_REQUEST,
     statusCode = StatusCodes.BAD_REQUEST
@@ -30,7 +20,7 @@ class BadResquestError extends ErrorReponse {
     super(message, statusCode);
   }
 }
-class ConflictRequestError extends ErrorReponse {
+class ConflictRequestError extends ErrorResponse {
   constructor(
     message = ReasonPhrases.CONFLICT,
     statusCode = StatusCodes.CONFLICT
@@ -38,7 +28,7 @@ class ConflictRequestError extends ErrorReponse {
     super(message, statusCode);
   }
 }
-class AuthFailureError extends ErrorReponse {
+class AuthFailureError extends ErrorResponse {
   constructor(
     message = ReasonPhrases.UNAUTHORIZED,
     statusCode = StatusCodes.UNAUTHORIZED
@@ -47,7 +37,7 @@ class AuthFailureError extends ErrorReponse {
   }
 }
 
-class NotFoundError extends ErrorReponse {
+class NotFoundError extends ErrorResponse {
   constructor(
     message = ReasonPhrases.NOT_FOUND,
     statusCode = StatusCodes.NOT_FOUND
@@ -56,7 +46,7 @@ class NotFoundError extends ErrorReponse {
   }
 }
 
-class ForbiddenError extends ErrorReponse {
+class ForbiddenError extends ErrorResponse {
   constructor(
     message = ReasonPhrases.FORBIDDEN,
     statusCode = StatusCodes.FORBIDDEN
@@ -66,7 +56,7 @@ class ForbiddenError extends ErrorReponse {
 }
 
 module.exports = {
-  BadResquestError,
+  BadRequestError,
   ConflictRequestError,
   AuthFailureError,
   NotFoundError,

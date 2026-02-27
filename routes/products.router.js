@@ -1,5 +1,5 @@
 const express = require('express');
-const productControllers = require('../controllers/products.controllers');
+const productControllers = require('../controllers/products.controller');
 const router = express.Router();
 const upload = require('../middlewares/upload');
 const resize = require('../middlewares/resize');
@@ -8,6 +8,11 @@ const {
   authentication,
   authorization,
 } = require('../middlewares/auth.middlewares');
+const { validateRequest } = require('../middlewares/validate-request');
+const {
+  createProductSchema,
+  updateProductSchema,
+} = require('../validations/product.validation');
 
 router.get('/', productControllers.getAllProducts);
 router.get('/:_id', productControllers.getProductById);
@@ -25,6 +30,7 @@ router.post(
     { name: 'product_images', maxCount: IMAGE_LIMIT_UPLOAD.product },
   ]),
   resize('products'),
+  validateRequest(createProductSchema),
   productControllers.createProduct
 );
 
@@ -39,6 +45,7 @@ router.patch(
   '/:_id',
   authentication,
   authorization('admin', 'moderator'),
+  validateRequest(updateProductSchema),
   productControllers.updateProduct
 );
 
@@ -51,7 +58,7 @@ router.patch(
       name: 'product_cover_image',
       maxCount: 1,
     },
-    { name: 'product_images', maxCount: IMAGE_LIMIT_UPLOAD },
+    { name: 'product_images', maxCount: IMAGE_LIMIT_UPLOAD.product },
   ]),
   resize('products'),
   productControllers.updateProduct

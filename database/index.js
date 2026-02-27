@@ -15,7 +15,13 @@ class Database {
     return Database.instance;
   }
   connect() {
-    mongoose.connect(URI).then(() => console.log('Database connected'));
+    mongoose
+      .connect(URI)
+      .then(() => console.log('Database connected'))
+      .catch((err) => {
+        console.error('Database connection failed:', err.message);
+        process.exit(1);
+      });
   }
 }
 

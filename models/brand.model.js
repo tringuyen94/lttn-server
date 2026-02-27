@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const slugify = require('slugify');
 const slugName = require('../utils/slug-name');
 
 const DOCUMENT_NAME = 'Brand';
@@ -12,20 +11,18 @@ const BrandSchema = new mongoose.Schema(
   },
   { collection: COLLECTION_NAME }
 );
-BrandSchema.pre('save', function (next) {
+BrandSchema.pre('save', function () {
   if (this.isModified('brand_name')) {
     this.brand_name = this.brand_name.toUpperCase();
     this.brand_slug = slugName(this.brand_name);
   }
-  next();
 });
-BrandSchema.pre('findOneAndUpdate', async function (next) {
+BrandSchema.pre('findOneAndUpdate', async function () {
   const update = this.getUpdate();
   if (update.brand_name) {
     update.brand_name = update.brand_name.toUpperCase();
     update.brand_slug = slugName(update.brand_name);
   }
-  next();
 });
 
 module.exports = mongoose.model(DOCUMENT_NAME, BrandSchema);

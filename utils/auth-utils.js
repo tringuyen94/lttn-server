@@ -13,7 +13,7 @@ const verifyJWT = (token) => {
     return decoded;
   } catch (err) {
     throw new AuthFailureError(
-      'Hết thời gian đăng nhập, vui lòng đăng nhập lại'
+      'Session expired, please sign in again'
     );
   }
 };

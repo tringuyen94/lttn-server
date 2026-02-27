@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const slugify = require('slugify');
 const slugName = require('../utils/slug-name');
 
 const DOCUMENT_NAME = 'Category';
@@ -13,18 +12,16 @@ const CategorySchema = new mongoose.Schema(
   },
   { collection: COLLECTION_NAME }
 );
-CategorySchema.pre('save', function (next) {
+CategorySchema.pre('save', function () {
   if (this.isModified('category_name')) {
     this.category_slug = slugName(this.category_name);
   }
-  next();
 });
-CategorySchema.pre('findOneAndUpdate', async function (next) {
+CategorySchema.pre('findOneAndUpdate', async function () {
   const update = this.getUpdate();
   if (update.category_name) {
     update.category_slug = slugName(update.category_name);
   }
-  next();
 });
 
 module.exports = mongoose.model(DOCUMENT_NAME, CategorySchema);

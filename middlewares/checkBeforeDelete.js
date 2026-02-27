@@ -1,20 +1,18 @@
-// middlewares/checkAssociation.js
 const Product = require('../models/product.model');
-const { BadResquestError } = require('../response/error.response');
+const { BadRequestError } = require('../response/error.response');
+const asyncHandler = require('../utils/async-handler');
 
-// Generalized middleware to check associations
 module.exports = (fieldName) => {
-  return async (req, res, next) => {
-    const { _id } = req.params; // Assuming the entity ID is passed as `id` in the route
+  return asyncHandler(async (req, res, next) => {
+    const { _id } = req.params;
     const productCount = await Product.countDocuments({
       [fieldName]: _id,
     });
     if (productCount > 0) {
-      return res.status(400).json({
-        status: 'failed',
-        message: `Không thể xoá !. ${productCount} sản phẩm đang liên quan tới ${fieldName}`,
-      });
+      throw new BadRequestError(
+        `Cannot delete. ${productCount} product(s) are associated with this ${fieldName}`
+      );
     }
-    next(); // Proceed to the next middleware or route handler
-  };
+    next();
+  });
 };

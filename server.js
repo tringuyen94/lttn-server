@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const app = require('./app');
 const {
   server: { port },
@@ -7,21 +8,25 @@ const webService = app.listen(port, () => {
   console.log(`Server is running on ${port}`);
 });
 
+const gracefulShutdown = (reason) => {
+  console.log(`Shutting down server (${reason})...`);
+  webService.close(() => {
+    mongoose.connection.close(false).then(() => {
+      console.log('Database connection closed');
+      process.exit(reason === 'SIGTERM' || reason === 'SIGINT' ? 0 : 1);
+    });
+  });
+};
+
 process.on('uncaughtException', (error) => {
   console.error('Uncaught Exception:', error);
-  // Perform any necessary cleanup
-  webService.close(() => {
-    console.log('Shutting down server due to uncaught exception...');
-    process.exit(1); // Exit the app
-  });
+  gracefulShutdown('uncaughtException');
 });
 
 process.on('unhandledRejection', (reason, promise) => {
   console.error('Unhandled Rejection at:', promise, 'reason:', reason);
-  // Perform any necessary cleanup, like closing database connections, etc.
-  // Shutdown the server
-  webService.close(() => {
-    console.log('Shutting down server...');
-    process.exit(1); // Exit with failure
-  });
+  gracefulShutdown('unhandledRejection');
 });
+
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
