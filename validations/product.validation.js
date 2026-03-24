@@ -8,7 +8,7 @@ const baseProductSchema = {
   product_capacity: Joi.number().integer().min(0),
   product_isnew: Joi.boolean(),
   product_cover_image: Joi.string(),
-  product_images: Joi.array().items(Joi.string()),
+  product_images: Joi.array().items(Joi.string()).min(1),
   brand: objectId,
   category: objectId,
 };
@@ -16,6 +16,7 @@ const baseProductSchema = {
 const createProductSchema = Joi.object({
   ...baseProductSchema,
   product_name: baseProductSchema.product_name.required(),
+  product_images: baseProductSchema.product_images.required(),
   brand: baseProductSchema.brand.required(),
   category: baseProductSchema.category.required(),
 });

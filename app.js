@@ -74,6 +74,10 @@ app.use(countVisitor);
 /**
  * HEALTH CHECK
  */
+app.get('/', (req, res) => {
+  res.status(200).json({ status: 'ok', message: 'LTTN API Server' });
+});
+
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok' });
 });
