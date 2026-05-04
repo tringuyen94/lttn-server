@@ -7,6 +7,7 @@ const projectRouter = require('./projects.router');
 const videoRouter = require('./video.router');
 const authRouter = require('./auth.router');
 const counterRouter = require('./counter.router');
+const inventoryRouter = require('./inventory.router');
 const router = express.Router();
 
 router.use('/categories', categoriesRouter);
@@ -17,5 +18,6 @@ router.use('/brands', brandRouter);
 router.use('/projects', projectRouter);
 router.use('/video', videoRouter);
 router.use('/counter', counterRouter);
+router.use('/inventory', inventoryRouter);
 
 module.exports = router;
